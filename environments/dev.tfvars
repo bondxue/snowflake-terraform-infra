@@ -5,8 +5,8 @@ region      = "us-east-1" # S3 bucket region
 
 # Snowflake Connection
 snowflake_role    = "SYSADMIN"
-snowflake_account = "eu36369"
-snowflake_org     = "lhmvtbw"
+snowflake_account = "blc59847"
+snowflake_org     = "stunwsn"
 snowflake_user    = "TERRAFORM_USER"
 
 # Configuration

@@ -1,0 +1,129 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Provisions Terraform remote state backend resources for this project:
+  an S3 bucket plus an IAM user with least-privilege access and access keys.
+
+Parameters:
+  BucketName:
+    Type: String
+    Description: Globally unique S3 bucket name for Terraform state.
+    Default: terraform-project-1gj449d
+    AllowedPattern: '^[a-z0-9.-]{3,63}$'
+    ConstraintDescription: Must be a valid S3 bucket name.
+
+  TerraformStateObjectPrefix:
+    Type: String
+    Description: Optional S3 key prefix used by Terraform state (for example, dev/).
+    Default: ''
+
+  TerraformIamUserName:
+    Type: String
+    Description: IAM username used by Terraform for backend state access.
+    Default: terraform-backend-user
+
+Resources:
+  TerraformStateBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Ref BucketName
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Project
+          Value: snowflake-terraform-infra
+        - Key: ManagedBy
+          Value: cloudformation
+
+  TerraformStateBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref TerraformStateBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: '*'
+            Action: s3:*
+            Resource:
+              - !Sub arn:${AWS::Partition}:s3:::${BucketName}
+              - !Sub arn:${AWS::Partition}:s3:::${BucketName}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+
+  TerraformBackendIamUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref TerraformIamUserName
+      Tags:
+        - Key: Project
+          Value: snowflake-terraform-infra
+        - Key: ManagedBy
+          Value: cloudformation
+
+  TerraformBackendIamPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: TerraformS3BackendAccess
+      Users:
+        - !Ref TerraformBackendIamUser
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: TerraformStateBucketList
+            Effect: Allow
+            Action:
+              - s3:ListBucket
+              - s3:GetBucketLocation
+            Resource:
+              - !Sub arn:${AWS::Partition}:s3:::${BucketName}
+          - Sid: TerraformStateObjectAccess
+            Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:DeleteObject
+            Resource:
+              - !If
+                - HasPrefix
+                - !Sub arn:${AWS::Partition}:s3:::${BucketName}/${TerraformStateObjectPrefix}*
+                - !Sub arn:${AWS::Partition}:s3:::${BucketName}/*
+
+  TerraformBackendAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref TerraformBackendIamUser
+      Status: Active
+
+Conditions:
+  HasPrefix: !Not
+    - !Equals [!Ref TerraformStateObjectPrefix, '']
+
+Outputs:
+  TerraformStateBucketName:
+    Description: S3 bucket name for backend configuration.
+    Value: !Ref TerraformStateBucket
+
+  TerraformBackendIamUserName:
+    Description: IAM username for Terraform backend access.
+    Value: !Ref TerraformBackendIamUser
+
+  TerraformBackendAccessKeyId:
+    Description: AWS access key ID (store securely).
+    Value: !Ref TerraformBackendAccessKey
+
+  TerraformBackendSecretAccessKey:
+    Description: AWS secret access key (shown only on stack create/update; store securely).
+    Value: !GetAtt TerraformBackendAccessKey.SecretAccessKey
