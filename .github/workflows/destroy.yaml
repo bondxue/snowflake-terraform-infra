@@ -67,7 +67,7 @@ jobs:
 
     - name: Initialize Terraform
       run: |
-        terraform init -backend-config="./backends/backend-$ENVIRONMENT.tfvars"
+        terraform init -backend-config="./backends/backend-$ENVIRONMENT.hcl"
 
     - name: Format terraform
       run: terraform fmt -check

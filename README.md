@@ -115,8 +115,8 @@ snowflake-terraform-infra/
 │       ├── deploy.yaml     # Terraform apply
 │       └── destroy.yaml    # Terraform destroy
 ├── 📁 backends/            # Backend configurations
-│   ├── backend-dev.tfvars
-│   └── backend-prod.tfvars
+│   ├── backend-dev.hcl
+│   └── backend-prod.hcl
 ├── 📁 config/              # YAML resource definitions
 │   ├── roles.yml
 │   ├── databases.yml
@@ -140,7 +140,7 @@ snowflake-terraform-infra/
 
 #### 1. **Configure S3 Backend**
 
-Update `backends/backend-dev.tfvars`:
+Update `backends/backend-dev.hcl`:
 
 ```hcl
 bucket  = "terraform-project-1gj449d"
@@ -294,7 +294,7 @@ export SNOWFLAKE_PRIVATE_KEY_PATH="/path/to/snowflake_tf_key.p8"
 3. **Initialize Terraform:**
 
 ```bash
-terraform init -backend-config=backends/backend-dev.tfvars
+terraform init -backend-config=backends/backend-dev.hcl
 ```
 
 4. **Plan changes:**
@@ -351,7 +351,7 @@ terraform {
 }
 ```
 
-#### **Step 3: Update `backends/backend-dev.tfvars`**
+#### **Step 3: Update `backends/backend-dev.hcl`**
 
 ```hcl
 bucket         = "terraform-project-1gj449d"
@@ -375,7 +375,7 @@ dynamodb_table = "terraform-state-lock"
 
 ```bash
 # Initialize
-terraform init -backend-config=backends/backend-dev.tfvars
+terraform init -backend-config=backends/backend-dev.hcl
 
 # Format code
 terraform fmt -recursive

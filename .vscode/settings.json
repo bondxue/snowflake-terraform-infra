@@ -1,5 +1,6 @@
 {
   "files.associations": {
     "backends/*.tfvars": "plaintext"
-  }
+  },
+  "kiroAgent.configureMCP": "Disabled"
 }
