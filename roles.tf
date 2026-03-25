@@ -3,6 +3,10 @@ locals {
     for role, roles in local.roles_yml.functional_roles : role => roles
   }
 
+  warehouse_roles = {
+    for warehouse, specs in local.warehouses : warehouse => upper(join("_", [local.object_prefix, warehouse, "WH"]))
+  }
+
   account_roles = {
     for role, roles in local.roles_yml.account_roles : role => roles
   }
@@ -16,6 +20,14 @@ locals {
       for role in specs.roles : join("_", [database, role])
     ]
   ])
+}
+
+resource "snowflake_account_role" "warehouse_role" {
+  for_each = local.warehouse_roles
+  provider = snowflake.securityadmin
+
+  name    = each.value
+  comment = var.comment
 }
 
 resource "snowflake_account_role" "object_role" {

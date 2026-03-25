@@ -3,9 +3,11 @@ warehouses:
     auto_suspend: 60
     max_cluster_count: 10
     roles:
-      ingestion: 
+      ingestion: # <-- functional role key
         - usage
-        - operate      
+        - operate  
+      # analyst:         # <-- second functional role gets the same warehouse role
+      #   - usage    
   # developer:
   #   size: "small"
   #   auto_suspend: 60
