@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This feature introduces "warehouse roles" (resource roles) to the Snowflake Terraform infrastructure project. Following Snowflake's RBAC best practice of separating resource roles from functional roles, a dedicated warehouse role is automatically created for each warehouse defined in `config/warehouses.yml`. Warehouse privileges are granted to the warehouse role (not directly to functional roles), the warehouse role is then granted to the relevant functional role(s), and also granted to the SYSADMIN account role. The implementation remains config-driven via YAML with minimal changes to the existing config structure.
+This feature introduces "warehouse roles" (resource roles) to the Snowflake Terraform infrastructure project. Following Snowflake's RBAC best practice of separating resource roles from functional roles, a dedicated warehouse role is automatically created for each warehouse defined in `config/warehouses.yml`. Warehouse privileges are granted to the warehouse role (not directly to functional roles), and the warehouse role is then granted to the relevant functional role(s). The implementation remains config-driven via YAML with minimal changes to the existing config structure.
 
 ## Glossary
 
@@ -13,7 +13,7 @@ This feature introduces "warehouse roles" (resource roles) to the Snowflake Terr
 - **Warehouse_Privilege**: A Snowflake privilege applicable to a warehouse resource (e.g. `USAGE`, `OPERATE`, `MONITOR`, `MODIFY`).
 - **Terraform_Config**: The set of YAML files under `config/` that drive resource creation.
 - **Warehouse_Role_Suffix**: The suffix appended to a warehouse name to form the warehouse role name. Defaults to `WH`.
-- **SYSADMIN**: The built-in Snowflake account role that must receive every warehouse role grant.
+- **SYSADMIN**: The built-in Snowflake account role.
 
 ## Requirements
 
@@ -53,18 +53,7 @@ This feature introduces "warehouse roles" (resource roles) to the Snowflake Terr
 4. WHEN a functional role is removed from a warehouse's `roles` map, THE Terraform_Config SHALL revoke the corresponding Warehouse_Role grant on the next apply.
 5. THE Terraform_Config SHALL support multiple functional roles listed under a single warehouse, granting the Warehouse_Role to each.
 
-### Requirement 4: Warehouse Role Granted to SYSADMIN
-
-**User Story:** As a Snowflake infrastructure engineer, I want every warehouse role automatically granted to the SYSADMIN account role, so that SYSADMIN retains full operational access to all warehouses without manual configuration.
-
-#### Acceptance Criteria
-
-1. THE Terraform_Config SHALL grant every Warehouse_Role to the `SYSADMIN` account role automatically, without requiring any entry in `config/roles.yml`.
-2. THE SYSADMIN grant SHALL use the `snowflake_grant_account_role` resource with the `snowflake.securityadmin` provider alias.
-3. THE SYSADMIN grant resource SHALL depend on the Warehouse_Role existing before the grant is applied.
-4. WHEN a warehouse is removed from `config/warehouses.yml`, THE Terraform_Config SHALL destroy the corresponding SYSADMIN grant on the next apply.
-
-### Requirement 5: Config Backward Compatibility
+### Requirement 4: Config Backward Compatibility
 
 **User Story:** As a Snowflake infrastructure engineer, I want the existing `config/warehouses.yml` structure to remain valid with minimal changes, so that the migration to warehouse roles does not require a full config rewrite.
 
@@ -75,7 +64,7 @@ This feature introduces "warehouse roles" (resource roles) to the Snowflake Terr
 3. WHEN the `roles` map under a warehouse entry is absent or empty, THE Terraform_Config SHALL create the Warehouse_Role with no privilege grants and no functional role grants.
 4. THE Terraform_Config SHALL remain compatible with the commented-out warehouse examples already present in `config/warehouses.yml` (developer, transform, reporting) without modification to those entries.
 
-### Requirement 6: Naming Consistency
+### Requirement 5: Naming Consistency
 
 **User Story:** As a Snowflake infrastructure engineer, I want warehouse role names to follow a predictable, consistent convention, so that roles are easily identifiable and auditable.
 

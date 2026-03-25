@@ -1,8 +1,4 @@
 locals {
-  warehouse_role_to_sysadmin_grants = {
-    for warehouse, specs in local.warehouses : warehouse => upper(join("_", [local.object_prefix, warehouse, "WH"]))
-  }
-
   warehouse_role_to_functional_role_grants = flatten([
     for warehouse, specs in local.warehouses : [
       for role, privileges in try(specs.roles, {}) : {
@@ -71,13 +67,3 @@ resource "snowflake_grant_account_role" "warehouse_role_to_functional_role" {
   depends_on = [snowflake_account_role.warehouse_role, snowflake_account_role.functional_role]
 }
 
-resource "snowflake_grant_account_role" "warehouse_role_to_sysadmin" {
-  for_each = local.warehouse_role_to_sysadmin_grants
-
-  provider = snowflake.securityadmin
-
-  role_name        = each.value
-  parent_role_name = "SYSADMIN"
-
-  depends_on = [snowflake_account_role.warehouse_role]
-}
