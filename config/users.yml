@@ -1,9 +1,13 @@
 service_users:
   dbt:
     rsa_public_key: |
-      -----BEGIN PUBLIC KEY-----
-      ...
-      -----END PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkpENb8JWDOhQJGBvn/SQ
+      H9wGiebHZc49GhxAn2n+vlECLAcskL2/8TJsBpKTVYBax76JmQGK+OG0UPwLMe5E
+      9hzKEqXg72Xi//fksyDgtiU5fodEGk+DFYL8RfEaOX5DQvOP6kJy+TRgjYWZrP5W
+      lMDj2Op8eRPD0k+fbASz6auFax2NQ2LyfZPcP8np2n7Su1PqG5XT4CNCYuRoDgSx
+      3BhbSL9zmB/PlakcJz9u8KPJI3uZyLf6i7cZbi2NjEGQf+8X2bmwmTCFHtyKyOM8
+      MH/A8rhW5HTYfZs7FBp4kgvnHCRmgy3xtNiQ9hT9YujMB45EzKffQ33l5HK6p06I
+      OwIDAQAB
     default_role: DEV_INGESTION
     default_warehouse: DEV_INGESTION
     comment: "dbt service user"
