@@ -1,0 +1,21 @@
+service_users:
+  dbt:
+    rsa_public_key: |
+      -----BEGIN PUBLIC KEY-----
+      ...
+      -----END PUBLIC KEY-----
+    default_role: DEV_INGESTION
+    default_warehouse: DEV_INGESTION
+    comment: "dbt service user"
+  # fivetran:
+  #   rsa_public_key: |
+  #     -----BEGIN PUBLIC KEY-----
+  #     ...
+  #     -----END PUBLIC KEY-----
+  #   default_role: DEV_INGESTION
+  #   default_warehouse: DEV_INGESTION
+  #   comment: "fivetran service user"
+  # airflow:
+  #   default_role: DEV_INGESTION
+  #   default_warehouse: DEV_INGESTION
+  #   comment: "airflow service user"

@@ -4,6 +4,8 @@ locals {
   permissions_yml = yamldecode(file("${var.config_dir}/permissions.yml"))
   database_yml    = yamldecode(file("${var.config_dir}/databases.yml"))
   warehouse_yml   = yamldecode(file("${var.config_dir}/warehouses.yml"))
+  users_yml       = yamldecode(file("${var.config_dir}/users.yml"))
+  service_users   = try(local.users_yml.service_users, {})
 
   # for convenience define all the supported object types
   object_type = {
